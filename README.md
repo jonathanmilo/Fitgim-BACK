@@ -14,3 +14,6 @@ mvn clean install
 
 2- arrancar la app desde las herramientas de visual para springboot o ejecutando en terminal:
 mvn spring-boot:run
+
+
+3 la aplicación corre en  http://localhost:9090/swagger-ui/index.html#/
