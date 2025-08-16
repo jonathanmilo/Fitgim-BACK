@@ -14,7 +14,7 @@ public class Clase {
     private String idClase;
     private LocalTime horarioInicio;
     private LocalTime horarioFin;
-    private int duracion;
+    private Double duracion;
     private String disciplina;
     private String idSede;
     private LocalDate fecha;
@@ -32,7 +32,7 @@ public class Clase {
     public Clase() {}
 
     // Constructor con parámetros
-    public Clase(String idClase, LocalTime horarioInicio, LocalTime horarioFin, int duracion, String disciplina, 
+    public Clase(String idClase, LocalTime horarioInicio, LocalTime horarioFin, Double duracion, String disciplina, 
                  String idSede, LocalDate fecha, String idProfesor, int cupo, EstadoClase estado, 
                  List<String> calificaciones) {
         this.idClase = idClase;
@@ -73,11 +73,11 @@ public class Clase {
         this.horarioFin = horarioFin;
     }
 
-    public int getDuracion() {
+    public Double getDuracion() {
         return duracion;
     }
 
-    public void setDuracion(int duracion) {
+    public void setDuracion(Double duracion) {
         this.duracion = duracion;
     }
 
