@@ -5,6 +5,10 @@ java
 maven
 
 pasos para arrancar el repo:
+
+0- posicionarse en la carpeta "demo" con el comando desde terminal:
+cd demo
+
 1-instalar todas las tependencias del pom.xml ejecutando  en terminal :
 mvn clean install
 
