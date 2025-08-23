@@ -8,7 +8,9 @@
             "mainClass": "com.fit.demo.DemoApplication",
             "projectName": "demo",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",  
+            "vmArgs": "-Djdk.tls.client.protocols=TLSv1.3,TLSv1.2"
+
         }
     ]
 }

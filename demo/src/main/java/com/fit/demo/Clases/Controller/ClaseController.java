@@ -3,6 +3,9 @@ package com.fit.demo.Clases.Controller;
 
 import com.fit.demo.Clases.Entidad.Clase;
 import com.fit.demo.Clases.Repository.ClaseRepository;
+import com.fit.demo.Sedes.entidad.Sede;
+import com.fit.demo.Sedes.repository.SedeRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/clases")
@@ -18,6 +24,8 @@ public class ClaseController {
 
     @Autowired
     private ClaseRepository claseRepository;
+
+    private SedeRepository sedeRepository;
 
     // Obtener todas las clases
     @GetMapping
@@ -77,10 +85,20 @@ public class ClaseController {
     }
 
     // Buscar clases por sede
-    @GetMapping("/search/sede")
-    public List<Clase> searchBySede(@RequestParam String idSede) {
+    @GetMapping("/search/sedeId")
+    public List<Clase> searchBySedeID(@RequestParam String idSede) {
         return claseRepository.findByIdSede(idSede);
     }
+
+    //Buscar clases por sede nombre
+    @GetMapping("/search/sede")
+    public List<Clase> searchBySedeName(@RequestParam String sedeName)
+    {
+        Sede sede=sedeRepository.findByNombre(sedeName);
+    
+        return claseRepository.findByIdSede(sede.getId_sede());
+    }
+    
 
     // Buscar clases por fecha
     @GetMapping("/search/fecha")
