@@ -14,14 +14,16 @@ public class Sede {
 
     private String nombre;
     private String ubicacion;
+    private String barrio;
 
     // Constructores
     public Sede() {}
 
-    public Sede(String id_sede, String nombre, String ubicacion) {
+    public Sede(String id_sede, String nombre, String ubicacion, String barrio) {
         this.id_sede = id_sede;
         this.nombre = nombre;
         this.ubicacion = ubicacion;
+        this.barrio = barrio;
     }
 
     // Getters y Setters
@@ -47,5 +49,12 @@ public class Sede {
 
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
+    }
+
+    public String getBarrio() {
+        return barrio;
+    }
+    public void setBarrio(String barrio) {
+        this.barrio = barrio;
     }
 }
