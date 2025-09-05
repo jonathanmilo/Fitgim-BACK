@@ -8,7 +8,7 @@ import com.fit.demo.Users.repositry.UserRepository;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserRepository repository;

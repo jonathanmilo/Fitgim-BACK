@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/sedes")
+@RequestMapping("/api/sedes")
 public class SedeController {
 
     private final SedeRepository repository;
