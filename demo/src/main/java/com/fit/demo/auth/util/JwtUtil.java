@@ -1,75 +1,83 @@
 package com.fit.demo.auth.util;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.fit.demo.Users.entidades.User;
 import com.fit.demo.Users.repositry.UserRepository;
-import com.fit.demo.exception.RecursoNoEncontradoException;
 
-import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long expirationTime = 1000 * 60 * 60; // 1 hora
+    private String secretKey ="Hc6clJbtssPjShXWzXOqbNPYpiGjFpffgr9sQvoED0c="; // Clave secreta para firmar los tokens
+
+    private static final long ACCESS_TOKEN_VALIDITY_MS = 50 * 60 * 1000; // 50 minutos
+    private static final long REFRESH_TOKEN_VALIDITY_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
 
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(key)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_MS))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public String generateRefreshToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("type", "refresh")
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY_MS))
+                .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (Exception e) {
+            throw new RuntimeException("Error al extraer username del token: " + e.getMessage());
+        }
     }
-    
-    public User getUserFromToken(String token,UserRepository userRepository) {
-        String username= Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-        return userRepository.findByNombre(username)
-                .orElseThrow(() -> new RecursoNoEncontradoException());
 
-
-    }
     public boolean validateToken(String token, String username) {
         try {
-            // Parsear el token y obtener las claims
-            var claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
-
-            String tokenUsername = claims.getSubject(); // subject = username
-            return (tokenUsername.equals(username) && !isTokenExpired(claims));
-
-        } catch (JwtException e) {
+            String tokenUsername = extractUsername(token);
+            return tokenUsername.equals(username) && !isTokenExpired(token);
+        } catch (Exception e) {
+            System.out.println("Error al validar token: " + e.getMessage());
             return false;
         }
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    private boolean isTokenExpired(String token) {
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .before(new Date());
+        } catch (Exception e) {
+            return true;
+        }
     }
 
-    // Método auxiliar para verificar expiración
-    private boolean isTokenExpired(Claims claims) {
-        return claims.getExpiration().before(new Date());
+    public User getUserFromToken(String token, UserRepository userRepository) {
+        try {
+            String username = extractUsername(token);
+            return userRepository.findByNombre(username)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener usuario del token: " + e.getMessage());
+        }
     }
 }

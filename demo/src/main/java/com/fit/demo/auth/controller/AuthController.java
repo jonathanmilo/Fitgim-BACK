@@ -14,7 +14,7 @@ import com.fit.demo.auth.service.AuthService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("api/auth")
 public class AuthController {
     private final AuthService authService;
 

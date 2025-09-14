@@ -7,49 +7,49 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import java.util.List;
-
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-
     @Autowired
     private JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
         final String authHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
-            try {
-                username = jwtUtil.extractUsername(jwt);
-            } catch (Exception e) {
-                System.out.println("Error al extraer username del token: " + e.getMessage());
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("Encabezado Authorization inválido: " + authHeader);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        jwt = authHeader.substring(7);
+        System.out.println("Token JWT recibido: " + jwt);
+        try {
+            username = jwtUtil.extractUsername(jwt);
+            System.out.println("Username extraído: " + username);
+        } catch (Exception e) {
+            System.out.println("Error al extraer username del token: " + e.getMessage());
+            filterChain.doFilter(request, response);
+            return;
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-            // Validar token sin usar UserDetails
             if (jwtUtil.validateToken(jwt, username)) {
+                System.out.println("Token válido para el usuario: " + username);
                 UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        new UsernamePasswordAuthenticationToken(username, null, null);
                 SecurityContextHolder.getContext().setAuthentication(authToken);
+            } else {
+                System.out.println("Token JWT inválido para el usuario: " + username);
             }
         }
 

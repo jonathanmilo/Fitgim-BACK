@@ -23,6 +23,7 @@ public class SedeController {
     // Obtener todas las sedes
     @GetMapping
     public List<Sede> getAllSedes() {
+        System.out.print("entro al get all SEDES");
         return repository.findAll();
     }
 

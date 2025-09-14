@@ -23,68 +23,50 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public TokenResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(RecursoNoEncontradoException::new);
+public TokenResponse login(LoginRequest request) {
+    User user = userRepository.findByEmail(request.getEmail())
+            .orElseThrow(() -> new RecursoNoEncontradoException());
 
-        System.out.println("EMAIL: "+request.getEmail()+" PASSWORD: "+request.getPassword());
-        System.out.println("USER PASSWORD: "+user.getPassword());
-    if (!isPasswordEncrypted(user.getPassword())) {
-            String encodedPassword = passwordEncoder.encode(user.getPassword());
-            user.setPassword(encodedPassword);
-            userRepository.save(user);
-        }
-   
-    if (passwordEncoder.matches(request.getPassword(), user.getPassword()) || 
-        request.getPassword().equals(user.getPassword())) {
-        // Si la contraseña no está encriptada, encriptarla y actualizarla
-        if (!isPasswordEncrypted(user.getPassword())) {
-            String encodedPassword = passwordEncoder.encode(user.getPassword());
-            user.setPassword(encodedPassword);
-            userRepository.save(user); // Guardar la contraseña encriptada
-        }
-    } else {
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
         throw new RuntimeException("Credenciales inválidas");
     }
 
     String accessToken = jwtUtil.generateToken(user.getNombre());
-    String refreshToken = jwtUtil.generateToken(user.getNombre());
+    System.out.println("Access Token generado: " + accessToken); // Para depuración
+    String refreshToken = jwtUtil.generateRefreshToken(user.getNombre());
     String userId = user.getId().toString();
     String nombre = user.getNombre();
     String email = user.getEmail();
 
-
-    return new TokenResponse(accessToken, refreshToken,
-            userId, nombre, email);
+    return new TokenResponse(accessToken, refreshToken, userId, nombre, email);
 }
 
     public UserResponse createUser(RegisterRequest registerRequest) {
         return userService.createUser(registerRequest);
     }
 
- public TokenResponse refreshToken(String refreshToken) {
-        try {
-            User user = jwtUtil.getUserFromToken(refreshToken,userRepository);
-            if (user == null) {
-                throw new RuntimeException("Usuario no encontrado");
-            }
+public TokenResponse refreshToken(String refreshToken) {
+    try {
+        // Validar el refresh token
+        String username = jwtUtil.extractUsername(refreshToken);
+        if (jwtUtil.validateToken(refreshToken, username)) {
+            User user = userRepository.findByNombre(username)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        String newaccessToken = jwtUtil.generateToken(user.getNombre());
-        String newrefreshToken = jwtUtil.generateToken(user.getNombre());
-        String userId = user.getId().toString();
-        String nombre = user.getNombre();
-        String email = user.getEmail();
+            String newAccessToken = jwtUtil.generateToken(user.getNombre());
+            String newRefreshToken = jwtUtil.generateRefreshToken(user.getNombre());
+            String userId = user.getId().toString();
+            String nombre = user.getNombre();
+            String email = user.getEmail();
 
-
-
-
-        return new TokenResponse(newaccessToken, newrefreshToken,
-                userId, nombre, email);
-
-
-        } catch (Exception e) {
-            throw new RuntimeException("No se pudo refrescar el token: " + e.getMessage());
+            return new TokenResponse(newAccessToken, newRefreshToken, userId, nombre, email);
+        } else {
+            throw new RuntimeException("Refresh token inválido o expirado");
         }
+    } catch (Exception e) {
+        throw new RuntimeException("No se pudo refrescar el token: " + e.getMessage());
     }
+}
     private boolean isPasswordEncrypted(String password) {
     // Una heurística simple: si no tiene un formato de hash (e.g., $2a$ para BCrypt), asumimos que no está encriptada
     return password != null && password.matches("^\\$2[ayb]\\$.+");
