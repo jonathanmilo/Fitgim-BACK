@@ -30,6 +30,7 @@ public class ClaseController {
     // Obtener todas las clases
     @GetMapping
     public List<Clase> getAllClases() {
+        System.out.println("entró a getAllClases");
         return claseRepository.findAll();
     }
 

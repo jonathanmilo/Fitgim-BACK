@@ -3,7 +3,9 @@ package com.fit.demo.Users.controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.fit.demo.Users.entidades.User;
+import com.fit.demo.Users.entidades.UserResponse;
 import com.fit.demo.Users.repositry.UserRepository;
+import com.fit.demo.Users.UserService;
 
 import java.util.List;
 
@@ -12,14 +14,20 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository repository;
+    private final UserService userService;
 
-    public UserController(UserRepository repository) {
+    public UserController(UserRepository repository, UserService userService) {
         this.repository = repository;
+        this.userService = userService;
     }
 
     @GetMapping
     public List<User> getAllUsers() {
         return repository.findAll();
+    }
+    @GetMapping("/{id}")
+    public UserResponse getUserById(@PathVariable String id) {
+        return userService.getUserById(id);
     }
 
     @PostMapping
