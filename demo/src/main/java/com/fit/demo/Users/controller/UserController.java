@@ -34,4 +34,9 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return repository.save(user);
     }
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable String id, @RequestBody User userDetails) {
+       return userService.updateUser(id, userDetails);
+         
+    }
 }

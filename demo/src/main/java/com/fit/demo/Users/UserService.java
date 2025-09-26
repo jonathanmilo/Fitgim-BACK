@@ -42,7 +42,7 @@ public class UserService {
 
 
 
-    public Optional<User> updateUser(String id, User userDetails) {
+    public User updateUser(String id, User userDetails) {
         if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException("El ID del usuario no puede ser nulo o vacío");
         }
@@ -62,7 +62,7 @@ public class UserService {
         user.setReservas(userDetails.getReservas());
         User updatedUser = userRepository.save(user);
 
-        return Optional.of(updatedUser);
+        return user;
        
     }
 
