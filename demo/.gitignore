@@ -34,3 +34,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Mac ###
+.java-version
