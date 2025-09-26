@@ -8,6 +8,7 @@ import com.fit.demo.Users.repositry.UserRepository;
 import com.fit.demo.Users.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -38,5 +39,10 @@ public class UserController {
     public User updateUser(@PathVariable String id, @RequestBody User userDetails) {
        return userService.updateUser(id, userDetails);
          
+    }
+
+    @PatchMapping("/{id}")
+    public User patchUser(@PathVariable String id, @RequestBody Map<String, Object> updates) {
+        return userService.patchUser(id, updates);
     }
 }

@@ -2,11 +2,10 @@ package com.fit.demo.Users;
 import com.fit.demo.auth.dto.RegisterRequest;
 import com.fit.demo.Users.entidades.*;
 import com.fit.demo.Users.repositry.UserRepository;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
+ 
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
+ 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.fit.demo.Users.entidades.User;
 import com.fit.demo.util.Mapper;
@@ -15,6 +14,7 @@ import com.fit.demo.Users.mapper.UserMapper;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import com.fit.demo.exception.RecursoNoEncontradoException;
 
@@ -87,5 +87,54 @@ public class UserService {
         User user = userMapper.toUser(registerRequest);
         userRepository.save(user);
         return userMapper.toUserResponse(user);
+    }
+
+    public User patchUser(String id, Map<String, Object> updates) {
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("El ID del usuario no puede ser nulo o vacío");
+        }
+
+        Optional<User> userOptional = userRepository.findById(new ObjectId(id));
+
+        if (userOptional.isEmpty()) {
+            throw new RecursoNoEncontradoException();
+        }
+
+        User user = userOptional.get();
+
+        if (updates.containsKey("nombre")) {
+            Object value = updates.get("nombre");
+            if (value instanceof String) {
+                user.setNombre((String) value);
+            }
+        }
+        if (updates.containsKey("email")) {
+            Object value = updates.get("email");
+            if (value instanceof String) {
+                user.setEmail((String) value);
+            }
+        }
+        if (updates.containsKey("foto")) {
+            Object value = updates.get("foto");
+            if (value instanceof String) {
+                user.setFoto((String) value);
+            }
+        }
+        if (updates.containsKey("reservas")) {
+            Object value = updates.get("reservas");
+            if (value instanceof java.util.List<?>) {
+                @SuppressWarnings("unchecked")
+                java.util.List<String> reservas = (java.util.List<String>) value;
+                user.setReservas(reservas);
+            }
+        }
+        if (updates.containsKey("password")) {
+            Object value = updates.get("password");
+            if (value instanceof String) {
+                user.setPassword(passwordEncoder.encode((String) value));
+            }
+        }
+
+        return userRepository.save(user);
     }
 }
