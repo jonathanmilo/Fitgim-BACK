@@ -29,6 +29,7 @@ public class UserMapperImpl implements UserMapper {
                 .nombre(user.getNombre())
                 .email(user.getEmail())
                 .password(user.getPassword())
+                .foto(user.getFoto())
                 .build();
     }
 }

@@ -1,7 +1,5 @@
 package com.fit.demo.Users.entidades;
 
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails.Address;
-
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,5 +10,6 @@ public class UserResponse {
     private String nombre;
     private String email;
     private String password;
+    private String foto;
 
 }
