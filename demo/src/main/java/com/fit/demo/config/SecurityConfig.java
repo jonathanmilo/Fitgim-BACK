@@ -61,6 +61,7 @@ public class SecurityConfig {
             "http://localhost:5173",
         "http://localhost:9090",
         "http://localhost:8080",
+        "http://localhost:8081",
         "http://10.0.2.2:8080",           // Emulador Android apuntando al host (puerto 8080)
         "http://10.0.2.2:9090"            // Emulador Android apuntando al host (puerto 9090, si usas este puerto)
         
