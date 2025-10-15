@@ -1,9 +1,13 @@
 package com.fit.demo.Reservas.Repository;
 
-import com.fit.demo.Reservas.Entidad.Reserva;
-import org.springframework.data.mongodb.repository.MongoRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.MongoRepository;
+
+import com.fit.demo.Reservas.Entidad.Reserva;
+import com.fit.demo.Reservas.Entidad.ReservaJoin;
 
 public interface ReservaRepository extends MongoRepository<Reserva, String> {
     // Buscar reservas por usuario (para próximas reservas y historial)
@@ -23,4 +27,17 @@ public interface ReservaRepository extends MongoRepository<Reserva, String> {
 
     // Buscar reservas con check-in confirmado (para historial de asistencias)
     List<Reserva> findByIdUsuarioAndConfirmedCheckinTrue(String idUsuario);
+
+    // Agregación para obtener reservas con detalles de clase y sede
+    @Aggregation(pipeline = {
+            "{ '$match': { 'idUsuario': ?0 } }",
+
+            "{ '$lookup': { 'from': 'clases', 'localField': 'idClase', 'foreignField': '_id', 'as': 'clase' } }",
+            "{ '$unwind': { 'path': '$clase', 'preserveNullAndEmptyArrays': true } }",
+
+            "{ '$lookup': { 'from': 'sedes', 'localField': 'clase.idSede', 'foreignField': '_id', 'as': 'sede' } }",
+            "{ '$unwind': { 'path': '$sede', 'preserveNullAndEmptyArrays': true } }",
+    })
+    List<ReservaJoin> findFullByUserId(String idUsuario);
+
 }

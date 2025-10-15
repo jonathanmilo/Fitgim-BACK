@@ -1,10 +1,12 @@
 package com.fit.demo.Reservas.Entidad;
 
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Document(collection = "reservas")
 public class Reserva {
@@ -89,7 +91,7 @@ public class Reserva {
         this.timestampCheckin = timestampCheckin;
     }
 
-    public boolean isConfirmedCheckin() {
+    public boolean isConfirmedCheckin() {  
         return confirmedCheckin;
     }
 
