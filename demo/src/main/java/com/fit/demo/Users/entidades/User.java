@@ -1,6 +1,7 @@
 package com.fit.demo.Users.entidades;
 
 
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,12 @@ public class User {
     private String foto;
     private List<String> reservas;
     private String password;
+    @Builder.Default
+    private String otpCode = null;
+    @Builder.Default
+    private LocalDateTime otpExpiryDate = null;
+    @Builder.Default
+    private boolean enabled = false;
 
     // Getters y Setters
     public String getId() { return id; }
@@ -38,7 +45,5 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-
-
 
 }

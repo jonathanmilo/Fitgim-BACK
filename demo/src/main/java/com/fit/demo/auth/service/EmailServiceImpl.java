@@ -31,7 +31,7 @@ public class EmailServiceImpl implements IEmailService{
             //helper.setText(emailDTO.getBody(), true); para enviar texto plano, no es el caso
             Context context = new Context();
             context.setVariable("message", emailDTO.getBody());
-            String html = templateEngine.process("email", context);
+            String html = templateEngine.process("otpEmail", context);
 
             helper.setText(html, true);
             javaMailSender.send(message);

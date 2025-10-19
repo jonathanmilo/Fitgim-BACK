@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Código OTP</title>
+    <style>
+        body {
+            background-color: #f4f7fb;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(20, 40, 80, 0.05);
+            overflow: hidden;
+        }
+        .header {
+            background: #2b6ef6;
+            color: #fff;
+            padding: 18px 22px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .body {
+            padding: 26px 24px;
+            text-align: center;
+        }
+        .intro {
+            font-size: 15px;
+            margin-bottom: 16px;
+            color: #555;
+        }
+
+        /* Caja gris rellena para el OTP, texto normal */
+        .otp-box {
+            display: inline-block;
+            background: #f3f4f6; /* gris claro relleno */
+            border: 1px solid #d1d5db; /* gris borde */
+            padding: 22px 28px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(16,24,40,0.04);
+        }
+        .otp {
+            font-family: inherit; /* tipo de texto normal */
+            font-size: 48px;
+            font-weight: 600;
+            letter-spacing: 6px;
+            color: #0b3d91;
+            margin: 0;
+            line-height: 1;
+        }
+
+        /* Nota de vigencia fuera de la caja */
+        .expiry-note {
+            font-size: 13px;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        .helper {
+            display: block;
+            margin-top: 18px;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .footer {
+            background: #fafbfd;
+            color: #96a0b8;
+            font-size: 12px;
+            text-align: center;
+            padding: 14px 18px;
+        }
+
+        @media only screen and (max-width: 420px) {
+            .otp-box { min-width: unset; padding: 14px 18px; }
+            .otp { font-size: 36px; letter-spacing: 5px; }
+            .body { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" role="article" aria-label="OTP Email">
+    <div class="header">
+        <h1>Tu código de verificación</h1>
+    </div>
+
+    <div class="body">
+        <p class="intro" th:text="${message != null} ? 'Usa el siguiente código para completar tu acción.' : 'Usa el siguiente código para completar tu acción.'">
+            Usa el siguiente código para completar tu acción.
+        </p>
+
+        <div class="otp-box" aria-live="polite" role="status" aria-label="Código OTP">
+            <p class="otp" th:text="${message}">123456</p>
+        </div>
+
+        <p class="expiry-note">Código válido por <strong>5 minutos</strong></p>
+
+        <span class="helper">No compartas este código con nadie. Si no solicitaste este correo, ignóralo.</span>
+    </div>
+
+    <div class="footer">
+        © FitGym — Este código expira en 5 minutos.
+    </div>
+</div>
+</body>
+</html>
