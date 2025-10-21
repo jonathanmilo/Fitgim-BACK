@@ -1,13 +1,18 @@
 package com.fit.demo.Users.entidades;
 
-
+import java.time.LocalDateTime;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Document(collection = "users")  // colección en MongoDB
 public class User {
@@ -19,6 +24,12 @@ public class User {
     private String foto;
     private List<String> reservas;
     private String password;
+    @Builder.Default
+    private String otpCode = null;
+    @Builder.Default
+    private LocalDateTime otpExpiryDate = null;
+    @Builder.Default
+    private boolean enabled = false;
 
     // Getters y Setters
     public String getId() { return id; }
@@ -38,7 +49,5 @@ public class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-
-
 
 }
