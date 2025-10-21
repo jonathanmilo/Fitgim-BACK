@@ -1,19 +1,36 @@
-Repo back end de la app fitgim, de la materia desarrollo de aplicaciones 1
+# FitGym - Backend
 
-requisitos :
-java 
-maven
+Repositorio del backend para la aplicación **FitGim**, desarrollado como parte de la materia **Desarrollo de Aplicaciones 1**.
 
-pasos para arrancar el repo:
+## 🚀 Requisitos
 
-0- posicionarse en la carpeta "demo" con el comando desde terminal:
-cd demo
+- **Java** (versión recomendada: 17 o superior)
+- **Maven** (versión recomendada: 3.8.1 o superior)
 
-1-instalar todas las tependencias del pom.xml ejecutando  en terminal :
-mvn clean install
+## ⚙️ Pasos para ejecutar el proyecto
 
-2- arrancar la app desde las herramientas de visual para springboot o ejecutando en terminal:
-mvn spring-boot:run
+1. Ejecuta el siguiente comando en la terminal para instalar todas las dependencias definidas en el archivo `pom.xml`:
+   ```bash
+   mvn clean install
 
+2. Inicia la aplicación desde las herramientas de Spring Boot en tu IDE o ejecutando el siguiente comando en la terminal:
+   ```bash
+    mvn spring-boot:run
 
-3 la aplicación corre en  http://localhost:9090/swagger-ui/index.html#/
+3. Una vez iniciada, la aplicación estará disponible en: http://localhost:9090/swagger-ui/index.html#/
+
+## 🛠️ Herramientas y tecnologías
+
+- Java
+- Spring Boot
+- Maven
+
+## 🧪 Ejecución de pruebas
+
+Para ejecutar las pruebas del proyecto, utiliza el siguiente comando:
+mvn test
+
+Los reportes de las pruebas se generarán en la carpeta `target/surefire-reports`.
+
+---
+**FitGim** - Proyecto académico para la gestión de gimnasios.
