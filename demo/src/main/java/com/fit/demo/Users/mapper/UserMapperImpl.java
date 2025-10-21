@@ -16,7 +16,7 @@ public class UserMapperImpl implements UserMapper {
     @Override
     public User toUser(RegisterRequest registerRequest) {
         return User.builder()
-                .nombre(registerRequest.getNombre().charAt(0)+registerRequest.getEmail())
+                .nombre(registerRequest.getNombre())
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
