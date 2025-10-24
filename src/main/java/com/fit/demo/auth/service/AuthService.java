@@ -6,6 +6,8 @@ import com.fit.demo.auth.dto.TokenResponse;
 import com.fit.demo.Users.entidades.UserResponse;
 import com.fit.demo.auth.dto.LoginRequest;
 import com.fit.demo.auth.util.JwtUtil;
+import com.fit.demo.exception.DisabledUserException;
+import com.fit.demo.exception.UnauthorizedException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import com.fit.demo.Users.entidades.User;
@@ -31,7 +33,11 @@ public class AuthService {
                 .orElseThrow(() -> new RecursoNoEncontradoException());
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Credenciales inválidas");
+            throw new UnauthorizedException();
+        }
+
+        if (!user.isEnabled()) {
+            throw new DisabledUserException();
         }
 
         String accessToken = jwtUtil.generateToken(user.getNombre());
@@ -49,7 +55,7 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RecursoNoEncontradoException());
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Credenciales inválidas");
+            throw new UnauthorizedException();
         }
         try {
             otpService.generateAndSendOtp(request.getEmail());
