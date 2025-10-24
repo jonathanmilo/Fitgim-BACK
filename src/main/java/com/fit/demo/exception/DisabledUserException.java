@@ -8,6 +8,7 @@ public class DisabledUserException extends RuntimeException implements ErrorResp
     private final ProblemDetail body;
 
     public DisabledUserException() {
+        super("DisabledUserException: Cuenta no habilitada");
         this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), "Cuenta no habilitada");
     }
 

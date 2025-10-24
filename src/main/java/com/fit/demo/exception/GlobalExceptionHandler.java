@@ -5,6 +5,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -38,6 +39,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DisabledUserException.class)
     public ResponseEntity<ProblemDetail> handleDisabled(DisabledUserException ex) {
         return ResponseEntity.status(ex.getStatusCode().value()).body(ex.getBody());
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ProblemDetail> handleResponseStatus(ResponseStatusException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason() != null ? ex.getReason() : ex.getMessage());
+        return new ResponseEntity<>(pd, ex.getStatusCode());
     }
 
     @ExceptionHandler(Exception.class)

@@ -23,32 +23,21 @@ public class AuthController {
     private final IEmailService emailService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> authenticate(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @PostMapping("/login-2fa")
-    public ResponseEntity<Void> login2faStart(@RequestBody LoginRequest loginRequest) {
-        try {
-            authService.loginStartSendOtp(loginRequest);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> login2fa(@RequestBody LoginRequest loginRequest) {
+        authService.login2fa(loginRequest);
+        return ResponseEntity.ok().build();
     }
 
     // Endpoint unificado para verificar OTP (tanto register como login)
     @PostMapping("/verify-otp")
     public ResponseEntity<TokenResponse> verifyOtp(@RequestBody OtpVerifyRequest req) {
-        try {
-            TokenResponse tokens = authService.verifyOtpAndAuthenticate(req.getEmail(), req.getOtp());
-            return ResponseEntity.ok(tokens);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        TokenResponse tokens = authService.verifyOtpAndAuthenticate(req.getEmail(), req.getOtp());
+        return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/register")

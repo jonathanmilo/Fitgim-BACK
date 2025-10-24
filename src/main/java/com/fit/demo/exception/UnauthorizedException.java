@@ -9,7 +9,7 @@ public class UnauthorizedException extends RuntimeException implements ErrorResp
     private final ProblemDetail body;
 
     public UnauthorizedException() {
-        super("Credenciales inválidas");
+        super("UnauthorizedException: Credenciales inválidas");
         this.body = ProblemDetail.forStatusAndDetail(getStatusCode(), "Credenciales inválidas");
     }
 

@@ -3,8 +3,12 @@ package com.fit.demo.auth.service;
 import com.fit.demo.Users.entidades.User;
 import com.fit.demo.Users.repositry.UserRepository;
 import com.fit.demo.auth.dto.EmailDTO;
+import com.fit.demo.exception.UnauthorizedException;
 import jakarta.mail.MessagingException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -32,7 +36,9 @@ public class OtpService {
     public void generateAndSendOtp(String email) throws MessagingException {
         Optional<User> opt = userRepository.findByEmail(email);
         if (opt.isEmpty()) {
-            throw new RuntimeException("Usuario no encontrado para enviar OTP");
+            String errorMsg = "Email no encontrado para enviar OTP: " + email;
+            System.err.println("[OtpService]: " + errorMsg);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMsg);
         }
         User user = opt.get();
 
@@ -41,7 +47,13 @@ public class OtpService {
 
         user.setOtpCode(otp);
         user.setOtpExpiryDate(expiry);
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            String errorMsg = "Error al guardar OTP para el usuario con email: " + email;
+            System.err.println("[OtpService]: " + errorMsg);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST ,errorMsg);
+        }
 
         EmailDTO dto = new EmailDTO();
         dto.setDestinatary(user.getEmail());
