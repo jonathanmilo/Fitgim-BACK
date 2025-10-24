@@ -8,6 +8,7 @@ import com.fit.demo.auth.dto.TokenResponse;
 import com.fit.demo.Users.entidades.UserResponse;
 import com.fit.demo.auth.service.IEmailService;
 import com.fit.demo.auth.service.AuthService;
+import com.fit.demo.auth.service.OtpService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
     private final IEmailService emailService;
+    private final OtpService otpService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
@@ -33,7 +35,6 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    // Endpoint unificado para verificar OTP (tanto register como login)
     @PostMapping("/verify-otp")
     public ResponseEntity<TokenResponse> verifyOtp(@RequestBody OtpVerifyRequest req) {
         TokenResponse tokens = authService.verifyOtpAndAuthenticate(req.getEmail(), req.getOtp());
@@ -54,5 +55,11 @@ public class AuthController {
     public ResponseEntity<String> sendEmail(@RequestBody EmailDTO emailDTO) throws MessagingException {
         emailService.sendMail(emailDTO);
         return new ResponseEntity<>(" Email sent successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("/send-otp")
+    public ResponseEntity<Void> sendOtp(@RequestBody String email) throws  MessagingException {
+        otpService.generateAndSendOtp(email);
+        return ResponseEntity.ok().build();
     }
 }
