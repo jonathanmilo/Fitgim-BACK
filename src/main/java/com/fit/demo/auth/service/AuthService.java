@@ -1,20 +1,22 @@
 package com.fit.demo.auth.service;
 
-import java.time.Instant;
 import com.fit.demo.auth.dto.RegisterRequest;
 import com.fit.demo.auth.dto.TokenResponse;
 import com.fit.demo.Users.entidades.UserResponse;
 import com.fit.demo.auth.dto.LoginRequest;
 import com.fit.demo.auth.util.JwtUtil;
+import com.fit.demo.exception.DisabledUserException;
+import com.fit.demo.exception.UnauthorizedException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import com.fit.demo.Users.entidades.User;
 import com.fit.demo.Users.repositry.UserRepository;
 import com.fit.demo.Users.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.fit.demo.exception.RecursoNoEncontradoException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -26,31 +28,21 @@ public class AuthService {
     private final OtpService otpService;
 
     public TokenResponse login(LoginRequest request) {
-        // flujo de login sin 2FA
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RecursoNoEncontradoException());
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Credenciales inválidas");
-        }
+        User user = validateUserCredentials(request);
 
         String accessToken = jwtUtil.generateToken(user.getNombre());
-        System.out.println("Access Token generado: " + accessToken); // Para depuración
         String refreshToken = jwtUtil.generateRefreshToken(user.getNombre());
         String userId = user.getId().toString();
         String nombre = user.getNombre();
         String email = user.getEmail();
+        System.out.println("Access Token generado: " + accessToken);
 
         return new TokenResponse(accessToken, refreshToken, userId, nombre, email);
     }
 
-    public void loginStartSendOtp(LoginRequest request) {
-        // 1) Flujo de login con 2FA
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RecursoNoEncontradoException());
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Credenciales inválidas");
-        }
+    public void login2fa(LoginRequest request) {
+        validateUserCredentials(request);
+
         try {
             otpService.generateAndSendOtp(request.getEmail());
         } catch (MessagingException e) {
@@ -60,30 +52,28 @@ public class AuthService {
 
     public TokenResponse verifyOtpAndAuthenticate(String email, String otp) {
         if (email == null || email.isBlank() || otp == null || otp.isBlank()) {
-            System.out.println("Email y OTP son requeridos");
-            throw new RuntimeException("Email y OTP son requeridos");
-        }
-
-        boolean ok;
-        try {
-            ok = otpService.validateAndConsumeOtp(email.trim(), otp.trim());
-        } catch (Exception e) {
-            System.out.println("Error al validar OTP:");
-            throw new RuntimeException("Error al validar OTP: " + e.getMessage(), e);
-        }
-
-        if (!ok) {
-            System.out.println("OTP no valido o expirado");
-            throw new RuntimeException("OTP inválido o expirado");
+            String errorMsg = "Email y OTP son requeridos";
+            System.err.println("[AuthService]: " + errorMsg);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMsg);
         }
 
         User user = userRepository.findByEmail(email.trim())
-                .orElseThrow(() -> new RecursoNoEncontradoException());
+                .orElseThrow(() -> new UnauthorizedException());
+
+        boolean ok;
+        ok = otpService.validateAndConsumeOtp(email.trim(), otp.trim());
+
+        if (!ok) {
+            String errorMsg = "OTP inválido o expirado";
+            System.err.println("[AuthService]: " + errorMsg);
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, errorMsg);
+        }
 
         String accessToken = jwtUtil.generateToken(user.getNombre());
         String refreshToken = jwtUtil.generateRefreshToken(user.getNombre());
         String userId = user.getId().toString();
         String nombre = user.getNombre();
+        System.out.println("Access Token generado: " + accessToken);
 
         return new TokenResponse(accessToken, refreshToken, userId, nombre, user.getEmail());
     }
@@ -92,10 +82,9 @@ public class AuthService {
     public UserResponse createUser(RegisterRequest registerRequest) {
         UserResponse resp = userService.createUser(registerRequest);
         try {
-            // Enviar OTP tras crear usuario (registro)
             otpService.generateAndSendOtp(registerRequest.getEmail());
         } catch (MessagingException e) {
-            throw new RuntimeException("No se pudo enviar OTP: " + e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No se pudo enviar OTP: " + e.getMessage(), e);
         }
         return resp;
     }
@@ -122,6 +111,19 @@ public class AuthService {
             throw new RuntimeException("No se pudo refrescar el token: " + e.getMessage());
         }
     }
+
+    private User validateUserCredentials(LoginRequest loginRequest) {
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new UnauthorizedException());
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new UnauthorizedException();
+        }
+        if (!user.isEnabled()) {
+            throw new DisabledUserException();
+        }
+        return user;
+    }
+
     private boolean isPasswordEncrypted(String password) {
         // Una heurística simple: si no tiene un formato de hash (e.g., $2a$ para BCrypt), asumimos que no está encriptada
         return password != null && password.matches("^\\$2[ayb]\\$.+");
