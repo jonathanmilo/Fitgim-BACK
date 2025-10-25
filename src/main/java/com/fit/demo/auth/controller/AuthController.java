@@ -1,10 +1,6 @@
 package com.fit.demo.auth.controller;
 
-import com.fit.demo.auth.dto.EmailDTO;
-import com.fit.demo.auth.dto.LoginRequest;
-import com.fit.demo.auth.dto.OtpVerifyRequest;
-import com.fit.demo.auth.dto.RegisterRequest;
-import com.fit.demo.auth.dto.TokenResponse;
+import com.fit.demo.auth.dto.*;
 import com.fit.demo.Users.entidades.UserResponse;
 import com.fit.demo.auth.service.IEmailService;
 import com.fit.demo.auth.service.AuthService;
@@ -58,8 +54,8 @@ public class AuthController {
     }
 
     @PostMapping("/send-otp")
-    public ResponseEntity<Void> sendOtp(@RequestBody String email) throws  MessagingException {
-        otpService.generateAndSendOtp(email);
+    public ResponseEntity<Void> sendOtp(@RequestBody SendOtpRequest request) throws  MessagingException {
+        otpService.generateAndSendOtp(request.getEmail());
         return ResponseEntity.ok().build();
     }
 }
