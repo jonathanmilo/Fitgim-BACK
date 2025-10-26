@@ -1,5 +1,13 @@
 {
     "configurations": [
+        
+        {
+            "type": "java",
+            "name": "DemoApplication",
+            "request": "launch",
+            "mainClass": "com.fit.demo.DemoApplication",
+            "projectName": ""
+        },
         {
             "type": "java",
             "name": "Spring Boot-DemoApplication<demo>",
@@ -8,9 +16,8 @@
             "mainClass": "com.fit.demo.DemoApplication",
             "projectName": "demo",
             "args": "",
-            "envFile": "${workspaceFolder}/.env",  
+            "envFile": "${workspaceFolder}/.env",
             "vmArgs": "-Djdk.tls.client.protocols=TLSv1.3,TLSv1.2"
-
         }
     ]
 }

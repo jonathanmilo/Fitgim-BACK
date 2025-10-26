@@ -11,7 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.server.ResponseStatusException;
+import com.fit.demo.exception.UnauthorizedException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/auth")
@@ -21,9 +22,14 @@ public class AuthController {
     private final OtpService otpService;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
-    }
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+            try {
+                TokenResponse tokenResponse = authService.login(loginRequest);
+                return ResponseEntity.ok(tokenResponse);
+            } catch (UnauthorizedException e) {
+                return ResponseEntity.status(e.getStatusCode()).body(e.getBody());
+            }
+        }
 
     @PostMapping("/login-2fa")
     public ResponseEntity<Void> login2fa(@RequestBody LoginRequest loginRequest) {
@@ -43,8 +49,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public void refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        // TODO: terminar esto
+    public TokenResponse refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        return authService.refreshToken(authHeader);
     }
 
     @PostMapping("/send-mail")

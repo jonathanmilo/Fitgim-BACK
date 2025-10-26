@@ -58,9 +58,10 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:9090",
                 "http://localhost:8080",
-                "http://localhost:8081", // agregado: origen del cliente que reporta el error
+                "http://localhost:8081", 
                 "http://10.0.2.2:8080",
-                "http://10.0.2.2:9090"
+                "http://10.0.2.2:9090",
+                "http://192.168.100.7:8081"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
