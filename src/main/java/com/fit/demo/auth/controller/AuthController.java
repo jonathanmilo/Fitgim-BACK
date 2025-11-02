@@ -7,6 +7,8 @@ import com.fit.demo.auth.service.AuthService;
 import com.fit.demo.auth.service.OtpService;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import main.java.com.fit.demo.auth.dto.RefreshToken;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,8 +51,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public TokenResponse refreshToken(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        return authService.refreshToken(authHeader);
+    public TokenResponse refreshToken(@RequestBody RefreshToken authHeader) {
+        return authService.refreshToken(authHeader.getRefreshToken());
     }
 
     @PostMapping("/send-mail")
