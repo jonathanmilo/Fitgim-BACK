@@ -15,7 +15,8 @@ public class JwtUtil {
     private String secretKey ="Hc6clJbtssPjShXWzXOqbNPYpiGjFpffgr9sQvoED0c="; // Clave secreta para firmar los tokens
 
     private static final long ACCESS_TOKEN_VALIDITY_MS = 50 * 60 * 1000; // 50 minutos
-    private static final long REFRESH_TOKEN_VALIDITY_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
+    private static final long REFRESH_TOKEN_VALIDITY_MS =  1000;
+     // 7 días //7 * 24 * 60 * 60 * 1000;
 
     public String generateToken(String username) {
         return Jwts.builder()
