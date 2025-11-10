@@ -28,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             System.out.println("Encabezado Authorization inválido: " + authHeader);
             filterChain.doFilter(request, response);
-            return request;
+            return ;
         }
 
         jwt = authHeader.substring(7);
