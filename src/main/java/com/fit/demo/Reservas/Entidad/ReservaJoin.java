@@ -12,6 +12,8 @@ public class ReservaJoin {
     private String idUsuario;
     private String idClase;
 
+    private Reserva.EstadoReserva estado;
+
     // Joined docs
     private Clase clase;
     private Sede sede;
@@ -54,6 +56,14 @@ public class ReservaJoin {
 
     public void setSede(Sede sede) {
         this.sede = sede;
+    }
+
+    public Reserva.EstadoReserva getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Reserva.EstadoReserva estado) {
+        this.estado = estado;
     }
 
     // getters/setters …
