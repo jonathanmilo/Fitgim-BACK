@@ -56,7 +56,7 @@ public class ReservaController {
 
     // Crear una nueva reserva
     @PostMapping
-    public ResponseEntity<Reserva> createReserva(@Valid @RequestBody Reserva reserva) {
+    public ResponseEntity<Reserva> createReserva(@Valid @RequestBody Reserva reserva) {                   
         // Nota: Validar cupo disponible en Clase debería hacerse en un servicio
         Optional<Clase> clase = claseRepository.findById(reserva.getIdClase());
         if (clase.isPresent()) {

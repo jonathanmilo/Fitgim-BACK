@@ -1,22 +1,32 @@
 package com.fit.demo.Clases.Controller;
 
-
-import com.fit.demo.Clases.Entidad.Clase;
-import com.fit.demo.Clases.Repository.ClaseRepository;
-import com.fit.demo.Sedes.entidad.Sede;
-import com.fit.demo.Sedes.repository.SedeRepository;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.fit.demo.Calificaciones.Entidad.Calificacion;
+import com.fit.demo.Calificaciones.Repository.CalificacionRepository;
+import com.fit.demo.Clases.Entidad.Clase;
+import com.fit.demo.Clases.Repository.ClaseRepository;
+import com.fit.demo.Profesores.Entidad.Profesor;
+import com.fit.demo.Profesores.Repository.ProfesorRepository;
+import com.fit.demo.Sedes.entidad.Sede;
+import com.fit.demo.Sedes.repository.SedeRepository;
 
 @RestController
 @RequestMapping("/api/clases")
@@ -25,7 +35,14 @@ public class ClaseController {
     @Autowired
     private ClaseRepository claseRepository;
 
+    @Autowired
     private SedeRepository sedeRepository;
+
+    @Autowired
+    private ProfesorRepository profesorRepository;
+
+    @Autowired
+    private CalificacionRepository calificacionRepository;
 
     // Obtener todas las clases
     @GetMapping
@@ -35,11 +52,33 @@ public class ClaseController {
     }
 
     // Obtener clase por ID
+    // Por alguna razon los join son horribles en Mongo
     @GetMapping("/{id}")
-    public ResponseEntity<Clase> getClaseById(@PathVariable String id) {
-        Optional<Clase> clase = claseRepository.findById(id);
-        return clase.map(ResponseEntity::ok)
-                   .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> getClaseById(@PathVariable String id) {
+        Optional<Clase> claseOpt = claseRepository.findById(id);
+
+        if (claseOpt.isEmpty())
+            return ResponseEntity.notFound().build();
+
+        Clase clase = claseOpt.get();
+        Sede sede = sedeRepository.findById(clase.getIdSede()).orElse(null);
+        Profesor profesor = profesorRepository.findById(clase.getIdProfesor()).orElse(null);
+
+        List<Calificacion> calificaciones = calificacionRepository.findByIdClase(clase.getIdClase());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("idClase", clase.getIdClase());
+        result.put("disciplina", clase.getDisciplina());
+        result.put("fecha", clase.getFecha());
+        result.put("cupo", clase.getCupo());
+        result.put("horarioInicio", clase.getHorarioInicio());
+        result.put("horarioFin", clase.getHorarioFin());
+        result.put("calificaciones", calificaciones);
+        result.put("nombreSede", sede != null ? sede.getNombre() : null);
+        result.put("ubicacionSede", sede != null ? sede.getUbicacion() : null);
+        result.put("nombreProfesor", profesor != null ? profesor.getNombre() : null);
+
+        return ResponseEntity.ok(result);
     }
 
     // Crear una nueva clase
@@ -91,15 +130,13 @@ public class ClaseController {
         return claseRepository.findByIdSede(idSede);
     }
 
-    //Buscar clases por sede nombre
+    // Buscar clases por sede nombre
     @GetMapping("/search/sede")
-    public List<Clase> searchBySedeName(@RequestParam String sedeName)
-    {
-        Sede sede=sedeRepository.findByNombre(sedeName);
-    
+    public List<Clase> searchBySedeName(@RequestParam String sedeName) {
+        Sede sede = sedeRepository.findByNombre(sedeName);
+
         return claseRepository.findByIdSede(sede.getId_sede());
     }
-    
 
     // Buscar clases por fecha
     @GetMapping("/search/fecha")
