@@ -9,6 +9,8 @@ import com.fit.demo.exception.DisabledUserException;
 import com.fit.demo.exception.UnauthorizedException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import main.java.com.fit.demo.exception.RefreshInvalidoException;
+
 import com.fit.demo.Users.entidades.User;
 import com.fit.demo.Users.repositry.UserRepository;
 import com.fit.demo.Users.UserService;
@@ -108,6 +110,9 @@ public class AuthService {
                 throw new RuntimeException("Refresh token inválido o expirado");
             }
         } catch (Exception e) {
+            if (e.getMessage().contains("JWT expired")) {
+                throw new RefreshInvalidoException();
+            }
             throw new RuntimeException("No se pudo refrescar el token: " + e.getMessage());
         }
     }

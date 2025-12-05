@@ -56,7 +56,7 @@ public class ReservaController {
 
     // Crear una nueva reserva
     @PostMapping
-    public ResponseEntity<Reserva> createReserva(@Valid @RequestBody Reserva reserva) {
+    public ResponseEntity<Reserva> createReserva(@Valid @RequestBody Reserva reserva) {                   
         // Nota: Validar cupo disponible en Clase debería hacerse en un servicio
         Optional<Clase> clase = claseRepository.findById(reserva.getIdClase());
         if (clase.isPresent()) {
@@ -78,10 +78,7 @@ public class ReservaController {
         Optional<Reserva> reserva = reservaRepository.findById(id);
         if (reserva.isPresent()) {
             Reserva updatedReserva = reserva.get();
-            updatedReserva.setIdClase(reservaDetails.getIdClase());
-            updatedReserva.setIdUsuario(reservaDetails.getIdUsuario());
             updatedReserva.setEstado(reservaDetails.getEstado());
-            updatedReserva.setTimestampCreacion(reservaDetails.getTimestampCreacion());
             updatedReserva.setTimestampCheckin(reservaDetails.getTimestampCheckin());
             updatedReserva.setConfirmedCheckin(reservaDetails.isConfirmedCheckin());
             return ResponseEntity.ok(reservaRepository.save(updatedReserva));
@@ -100,7 +97,10 @@ public class ReservaController {
                 c.setCupo(c.getCupo() + 1);
                 claseRepository.save(c);
             }
-            reservaRepository.deleteById(id);
+            // reservaRepository.deleteById(id);
+            Reserva reservaCancelada = reserva.get();
+            reservaCancelada.setEstado(Reserva.EstadoReserva.CANCELADA);
+            reservaRepository.save(reservaCancelada);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
@@ -118,6 +118,7 @@ public class ReservaController {
             reservaJoin.setIdReserva(reserva.getIdReserva());
             reservaJoin.setIdUsuario(reserva.getIdUsuario());
             reservaJoin.setIdClase(reserva.getIdClase());
+            reservaJoin.setEstado(reserva.getEstado());
             reservaJoin.setClase(clases.stream()
                     .filter(c -> c.getIdClase().equals(reserva.getIdClase()))
                     .findFirst()

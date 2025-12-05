@@ -1,6 +1,5 @@
 package com.fit.demo.Reservas.Entidad;
 
-
 import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
@@ -20,7 +19,7 @@ public class Reserva {
     @NotNull
     private LocalDateTime timestampCreacion;
     private LocalDateTime timestampCheckin; // Opcional
-    private boolean confirmedCheckin;
+    private boolean confirmedCheckin = false;
 
     // Enum para estado
     public enum EstadoReserva {
@@ -28,11 +27,12 @@ public class Reserva {
     }
 
     // Constructor vacío
-    public Reserva() {}
+    public Reserva() {
+    }
 
     // Constructor con parámetros
-    public Reserva(String idReserva, String idClase, String idUsuario, EstadoReserva estado, 
-                   LocalDateTime timestampCreacion, LocalDateTime timestampCheckin, boolean confirmedCheckin) {
+    public Reserva(String idReserva, String idClase, String idUsuario, EstadoReserva estado,
+            LocalDateTime timestampCreacion, LocalDateTime timestampCheckin, boolean confirmedCheckin) {
         this.idReserva = idReserva;
         this.idClase = idClase;
         this.idUsuario = idUsuario;
@@ -91,7 +91,7 @@ public class Reserva {
         this.timestampCheckin = timestampCheckin;
     }
 
-    public boolean isConfirmedCheckin() {  
+    public boolean isConfirmedCheckin() {
         return confirmedCheckin;
     }
 
