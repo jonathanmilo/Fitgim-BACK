@@ -15,7 +15,7 @@ Repositorio del backend para la aplicación **FitGim**, desarrollado como parte 
 
 2. Inicia la aplicación desde las herramientas de Spring Boot en tu IDE o ejecutando el siguiente comando en la terminal:
    ```bash
-    mvn spring-boot:run
+   mvn spring-boot:run
 
 3. Una vez iniciada, la aplicación estará disponible en: http://localhost:9090/swagger-ui/index.html#/
 

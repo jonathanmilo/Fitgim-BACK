@@ -55,6 +55,14 @@ public class UserService {
 
         User user = userOptional.get();
 
+        // Verificar si el nuevo email ya está en uso por otro usuario
+        if (!user.getEmail().equals(userDetails.getEmail())) {
+            Optional<User> existingUser = userRepository.findByEmail(userDetails.getEmail());
+            if (existingUser.isPresent()) {
+                throw new IllegalArgumentException("Ya existe un usuario registrado con el email: " + userDetails.getEmail());
+            }
+        }
+
         user.setNombre(userDetails.getNombre());
         user.setEmail(userDetails.getEmail());
         user.setPassword(userDetails.getPassword());
@@ -84,6 +92,12 @@ public class UserService {
     }
 
     public UserResponse createUser(RegisterRequest registerRequest) {
+        // Verificar si ya existe un usuario con ese email
+        Optional<User> existingUser = userRepository.findByEmail(registerRequest.getEmail());
+        if (existingUser.isPresent()) {
+            throw new IllegalArgumentException("Ya existe un usuario registrado con el email: " + registerRequest.getEmail());
+        }
+        
         User user = userMapper.toUser(registerRequest);
         userRepository.save(user);
         return userMapper.toUserResponse(user);
@@ -111,7 +125,15 @@ public class UserService {
         if (updates.containsKey("email")) {
             Object value = updates.get("email");
             if (value instanceof String) {
-                user.setEmail((String) value);
+                String newEmail = (String) value;
+                // Verificar si el nuevo email ya está en uso por otro usuario
+                if (!user.getEmail().equals(newEmail)) {
+                    Optional<User> existingUser = userRepository.findByEmail(newEmail);
+                    if (existingUser.isPresent()) {
+                        throw new IllegalArgumentException("Ya existe un usuario registrado con el email: " + newEmail);
+                    }
+                }
+                user.setEmail(newEmail);
             }
         }
         if (updates.containsKey("foto")) {
